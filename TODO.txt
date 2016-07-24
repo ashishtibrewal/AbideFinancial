@@ -1,0 +1,12 @@
+Classes
+-------
+1. Run - Entry point to the program
+2. Practice - Data type (class) that represents a NHS practice
+3. Parse - Class that parses the input files
+4. Questions - Class that contains a list of generic questions
+5. ScanData - Class that scans/searches all data to find the answer to a question
+
+Ideas
+-----
+- Maybe add a cache mechanism/functionality (For last 10 questions asked)
+- Think of what data structure to use
