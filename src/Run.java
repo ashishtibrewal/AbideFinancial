@@ -11,7 +11,7 @@ import java.util.*;
 public class Run
 {
   /** Main method */
-  public static void main(String[] args) throws Exception
+  public static void main(String[] args)
   {
     System.out.println("\nProgram started.");
     List<List<String[]>> nhsData = new ArrayList<List<String[]>>(); // List of list of String array to store data parsed from a file - Cannot have arrays with generic types hence using the Java Collection Frameworki - Each internal list represents a file and each string array represents a line/row in a file 
@@ -36,52 +36,63 @@ public class Run
   }
 
   /** Method to read a file */
-  private static List<String[]> readFile(String fileName) throws Exception
+  private static List<String[]> readFile(String fileName)
   {
-    BufferedReader brFile = new BufferedReader(new FileReader(fileName));
-    String line = "";
-    String[] columnHeaderItems = {};
-    String[] rowItems = {};
-    boolean headerRead = false;
-    int numItems = 0;
     //List<Data> fileData = new ArrayList<Data>();
     List<String[]> fileData = new ArrayList<String[]>();
-    int counter = 0;
-    while((line = brFile.readLine()) != null)
+    try
     {
-      if(headerRead == false)
+      BufferedReader brFile = new BufferedReader(new FileReader(fileName));
+      String line = "";
+      String[] columnHeaderItems = {};
+      String[] rowItems = {};
+      boolean headerRead = false;
+      int numItems = 0;
+      int counter = 0;
+      while((line = brFile.readLine()) != null)
       {
-        columnHeaderItems = line.split(",");
-        numItems = columnHeaderItems.length;
-        headerRead = true;
-        //System.out.println(line);
-      }
-      else
-      {
-        rowItems = line.split(",");
-        for (int i = 0; i < numItems; i++)
+        if(headerRead == false)
         {
-          if (rowItems[i].contains("London") || rowItems[i].contains("LONDON"))
+          columnHeaderItems = line.split(",");
+          numItems = columnHeaderItems.length;
+          headerRead = true;
+          //System.out.println(line);
+        }
+        else
+        {
+          rowItems = line.split(",");
+          for (int i = 0; i < numItems; i++)
           {
-            counter++;
+            if (rowItems[i].contains("London") || rowItems[i].contains("LONDON"))
+            {
+              counter++;
+            }
           }
+          //fileData.add(rowItems);
+          /*Field[] fields = new Field[numItems];
+          for(int i = 0; i < numItems; i++)
+          {
+            fields[i] = new Field();
+            fields[i].setFieldType(columnHeaderItems[i]);
+            fields[i].setFieldValue(rowItems[i]);
+          }
+          fileData.add(new Data(fields));*/
         }
-        //fileData.add(rowItems);
-        /*Field[] fields = new Field[numItems];
-        for(int i = 0; i < numItems; i++)
-        {
-          fields[i] = new Field();
-          fields[i].setFieldType(columnHeaderItems[i]);
-          fields[i].setFieldValue(rowItems[i]);
-        }
-        fileData.add(new Data(fields));*/
       }
+      for(String s:columnHeaderItems)
+      {
+        //System.out.println(s);
+      }
+      System.out.println("Counter: " + counter);
     }
-    for(String s:columnHeaderItems)
+    catch(FileNotFoundException e)
     {
-      //System.out.println(s);
+      System.err.println("Caught FileNotFoundException when trying to read the input file: " + e.getMessage());
     }
-    System.out.println("Counter: " + counter);
+    catch(IOException e)
+    {
+      System.err.println("Caught IOException when trying to read the input file: " + e.getMessage());
+    }
     return fileData;
   }
 
@@ -151,7 +162,7 @@ public class Run
       }
       catch(IOException e)
       {
-        System.err.println("Caught IOException when trying to read the input: " + e.getMessage());
+        System.err.println("Caught IOException when trying to read the user input: " + e.getMessage());
       }
     }
   }
