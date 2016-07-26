@@ -7,8 +7,6 @@
 # Description: Script to compile all the source files and run the simulator
 #############################################################################
 
-# TODO Add check for data/ directory and curl command to get excel files only if the files aren't present
-
 SRC=src       # Source directory
 BIN=bin       # Binary directory
 DATA=data     # Data directory
@@ -18,9 +16,9 @@ DUMP=-XX:+HeapDumpOnOutOfMemoryError # Flag to dump heap
 echo "Current working directory: `pwd`"
 echo "Checking if $DATA directory exists..."
 if [ -d "$DATA" ]; then
-  echo "$DATA exists."
+  echo "$DATA directory exists."
 else
-  echo "$DATA doesn't exist. Creating $DATA..."
+  echo "$DATA directory doesn't exist. Creating $DATA..."
   mkdir $DATA
 fi
 echo "Checking if NHS data files are present..."
@@ -38,9 +36,9 @@ else
 fi
 echo "Checking if $BIN directory exists..."
 if [ -d "$BIN" ]; then
-  echo "$BIN exists."
+  echo "$BIN directory exists."
 else
-  echo "$BIN doesn't exist. Creating $BIN..."
+  echo "$BIN directory doesn't exist. Creating $BIN..."
   mkdir $BIN
 fi
 echo "Moving to source directory..."

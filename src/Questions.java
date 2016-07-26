@@ -13,7 +13,7 @@ public class Questions
 
   public static void initialise()
   {
-    String question, region, cities;
+    String question, regions, cities;
     questionsList = new ArrayList<String>();
     regionsList = new ArrayList<String>();
     citiesList = new ArrayList<String>();
@@ -29,11 +29,21 @@ public class Questions
     questionsList.add(question);
     question = "How much did this vary from the national mean?";
     questionsList.add(question);
-
+    // TODO: Look for other types of possible questions and add them to this list 
+    // TODO: Could also add functionality for asking a specific keyword that could be used to search for anything in the files parsed.
+    
     // Regions
-    region = "North, East, South, West, North-east, North-west, South-east, South-westi";
+    regions = "North, East, South, West, North-east, North-west, South-east, South-westi";
+    for(String r:regions.split(","))
+    {
+      regionsList.add(r);
+    }
 
     // Cities
     cities = "London";
+    for(String c:cities.split(","))
+    {
+      citiesList.add(c);
+    }
   }
 }
