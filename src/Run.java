@@ -19,7 +19,9 @@ public class Run
     displayFiles(args, relativePath);   // Display files
     Questions.initialise();             // Initialise questions
     String input;
-    int output;
+    float output;
+    int prescription_file = 0;
+    int practices_file = 1;
     while(true)
     {
       output = 0;
@@ -31,19 +33,46 @@ public class Run
         System.exit(0);
       }
       // TODO: Only run this if it doesn't exist in the cache, if it does read the value from the cache
-      for(String file:args)
+      switch(Integer.parseInt(input))
+      {
+        case 1:
+          output = readFile(relativePath + args[practices_file], input);
+          break;
+
+        case 2:
+          output = readFile(relativePath + args[prescription_file], input);
+          break;
+
+        case 3:
+          output = readFile(relativePath + args[prescription_file], input);
+          break;
+
+        case 4:
+          output = readFile(relativePath + args[prescription_file], input);
+          break;
+
+        case 5:
+          output = readFile(relativePath + args[prescription_file], input);
+          break;
+
+        default:
+          output = -1;
+          break;
+      }
+      /*for(String file:args)
       {
         output = output + readFile(relativePath + file, input);     // Read and parse each file
-      }
+        System.out.println(output);
+      }*/
       System.out.println("\nAnswer: " + output);
     }
   }
 
   /** Method to read and process a file */
   // TODO: Maybe add a cache mechanism for the 20 most recent querries
-  private static int readFile(String fileName, String input)
+  private static float readFile(String fileName, String input)
   {
-    int output = 0;
+    float output = 0;
     try
     {
       BufferedReader brFile = new BufferedReader(new FileReader(fileName));
@@ -53,6 +82,8 @@ public class Run
       String querry = "";
       boolean headerRead = false;
       int numItems = 0;
+      int counter = 0;
+      float actualCost = 0;
       while((line = brFile.readLine()) != null)
       {
         if(headerRead == false)
@@ -70,10 +101,19 @@ public class Run
             {
               case 1:
                 querry = "London";
+                for(int i = 0; i < numItems; i++)
+                {
+                  if(rowItems[i].toLowerCase().contains(querry.toLowerCase())) output++;
+                }
                 break;
 
               case 2:
                 querry = "Peppermint Oil";
+                if(rowItems[Columns.BNF_NAME].toLowerCase().contains(querry.toLowerCase()))
+                {
+                  actualCost = actualCost + Float.parseFloat(rowItems[Columns.ACT_COST]);
+                  counter++;
+                }
                 break;
 
               case 3:
@@ -93,12 +133,21 @@ public class Run
           else      // General querry
           {
             querry = input;
-          }
-          for(int i = 0; i < numItems; i++)
-          {
-            if(rowItems[i].toLowerCase().contains(querry.toLowerCase())) output++;
+            for(int i = 0; i < numItems; i++)
+            {
+              if(rowItems[i].toLowerCase().contains(querry.toLowerCase())) output++;
+            }
           }
         }
+      }
+      switch(Integer.parseInt(input))
+      {
+        case 2:
+          output = actualCost/counter;
+          break;
+        default:
+          output = -1;
+          break;
       }
     }
     catch(FileNotFoundException e)

@@ -21,7 +21,7 @@ public class Questions
     // Questions
     question = "How many practices are in London?";
     questionsList.add(question);
-    question = "What was the average actual cost of all peppermint oil prescriptions?";
+    question = "What was the average actual cost of all Peppermint Oil prescriptions?";
     questionsList.add(question);
     question = "Which 5 post codes have the highest actual spend, and how much did each spend in total?";
     questionsList.add(question);
@@ -29,8 +29,7 @@ public class Questions
     questionsList.add(question);
     question = "How much did this vary from the national mean?";
     questionsList.add(question);
-    // TODO: Look for other types of possible questions and add them to this list 
-    // TODO: Could also add functionality for asking a specific keyword that could be used to search for anything in the files parsed.
+    // TODO: Look for other types of possible questions and add them to this list (Add atleast 5-7 more questions)
     
     // Regions
     regions = "North, East, South, West, North-east, North-west, South-east, South-westi";
