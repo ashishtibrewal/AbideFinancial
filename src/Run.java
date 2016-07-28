@@ -18,9 +18,11 @@ public class Run
     String relativePath = "../";
     displayFiles(args, relativePath);   // Display files
     Questions.initialise();             // Initialise questions
-    String input = "";
+    String input;
+    int output;
     while(true)
     {
+      output = 0;
       displayQuestions();               // Display questions
       input = readInput();              // Read user input
       if(input.equals("Quit") || input.equals("quit") || input.equals("q"))
@@ -28,27 +30,29 @@ public class Run
         System.out.println("\nQuitting... Goodbye.\n");
         System.exit(0);
       }
+      // TODO: Only run this if it doesn't exist in the cache, if it does read the value from the cache
       for(String file:args)
       {
-        nhsData.add(readFile(relativePath + file));     // Read and parse each file
+        output = output + readFile(relativePath + file, input);     // Read and parse each file
       }
+      System.out.println("\nAnswer: " + output);
     }
   }
 
-  /** Method to read a file */
-  private static List<String[]> readFile(String fileName)
+  /** Method to read and process a file */
+  // TODO: Maybe add a cache mechanism for the 20 most recent querries
+  private static int readFile(String fileName, String input)
   {
-    //List<Data> fileData = new ArrayList<Data>();
-    List<String[]> fileData = new ArrayList<String[]>();
+    int output = 0;
     try
     {
       BufferedReader brFile = new BufferedReader(new FileReader(fileName));
       String line = "";
       String[] columnHeaderItems = {};
       String[] rowItems = {};
+      String querry = "";
       boolean headerRead = false;
       int numItems = 0;
-      int counter = 0;
       while((line = brFile.readLine()) != null)
       {
         if(headerRead == false)
@@ -56,34 +60,46 @@ public class Run
           columnHeaderItems = line.split(",");
           numItems = columnHeaderItems.length;
           headerRead = true;
-          //System.out.println(line);
         }
         else
         {
           rowItems = line.split(",");
-          for (int i = 0; i < numItems; i++)
+          if(input.matches("[0-9]+"))   // Questions
           {
-            if (rowItems[i].contains("London") || rowItems[i].contains("LONDON"))
+            switch(Integer.parseInt(input))
             {
-              counter++;
+              case 1:
+                querry = "London";
+                break;
+
+              case 2:
+                querry = "Peppermint Oil";
+                break;
+
+              case 3:
+                break;
+
+              case 4:
+                break;
+
+              case 5:
+                break;
+
+              default:
+                output = -1;
+                break;
             }
           }
-          //fileData.add(rowItems);
-          /*Field[] fields = new Field[numItems];
+          else      // General querry
+          {
+            querry = input;
+          }
           for(int i = 0; i < numItems; i++)
           {
-            fields[i] = new Field();
-            fields[i].setFieldType(columnHeaderItems[i]);
-            fields[i].setFieldValue(rowItems[i]);
+            if(rowItems[i].toLowerCase().contains(querry.toLowerCase())) output++;
           }
-          fileData.add(new Data(fields));*/
         }
       }
-      for(String s:columnHeaderItems)
-      {
-        //System.out.println(s);
-      }
-      System.out.println("Counter: " + counter);
     }
     catch(FileNotFoundException e)
     {
@@ -93,7 +109,7 @@ public class Run
     {
       System.err.println("Caught IOException when trying to read the input file: " + e.getMessage());
     }
-    return fileData;
+    return output;
   }
 
   /* Method to display files names (arguments) passed to the program */
@@ -106,7 +122,7 @@ public class Run
       System.out.println(fileNo + ". " + file);   // Display all arguments/files passed
       fileNo++;
     }
-    System.out.println("-----------------------\n");
+    System.out.println("-----------------------");
   }
 
   /* Method to display questions supported by the program */
@@ -145,6 +161,7 @@ public class Run
             if((Integer.parseInt(input) > 0) && (Integer.parseInt(input) <= Questions.questionsList.size()))
             {
               System.out.println("Question " + input + ": " + Questions.questionsList.get(Integer.parseInt(input) - 1));
+              System.out.print("Searching...");
               // TODO For certain questions, a region would be required
               return input;
             }
@@ -163,6 +180,10 @@ public class Run
       catch(IOException e)
       {
         System.err.println("Caught IOException when trying to read the user input: " + e.getMessage());
+      }
+      catch(NumberFormatException e)
+      {
+        System.err.println("Caught NumberFormatException when trying to read the user input: " + e.getMessage() + ". Incorrect input value (question number). Please enter a value within range (1 - " + Questions.questionsList.size() + ").");
       }
     }
   }
