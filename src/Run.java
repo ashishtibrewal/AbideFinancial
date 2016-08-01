@@ -11,6 +11,7 @@ import java.util.*;
 public class Run
 {
   /** Main method */
+  @SuppressWarnings("unchecked")    // Suppress unchecked type cast warnings
   public static void main(String[] args)
   {
     System.out.println("\nProgram started.");
@@ -19,7 +20,7 @@ public class Run
     displayFiles(args, relativePath);   // Display files
     Questions.initialise();             // Initialise questions
     String input;
-    float output;
+    Object output;
     int prescription_file = 0;
     int practices_file = 1;
     while(true)
@@ -33,46 +34,89 @@ public class Run
         System.exit(0);
       }
       // TODO: Only run this if it doesn't exist in the cache, if it does read the value from the cache
-      switch(Integer.parseInt(input))
+      else if(input.matches("[0-9]+"))
       {
-        case 1:
-          output = readFile(relativePath + args[practices_file], input);
-          break;
+        switch(Integer.parseInt(input))
+        {
+          case 1:
+            output = (Float)readFile(relativePath + args[practices_file], input, null);
+            break;
 
-        case 2:
-          output = readFile(relativePath + args[prescription_file], input);
-          break;
+          case 2:
+            output = (Float)readFile(relativePath + args[prescription_file], input, null);
+            break;
 
-        case 3:
-          output = readFile(relativePath + args[prescription_file], input);
-          break;
+          case 3:
+            HashMap<String, Practice> practiceData = getPracticeData(relativePath + args[practices_file]);   // Store practice data to be able to access postcode references when parsing and analysing the prescription file
+            output = (ArrayList<Map.Entry<String, Float>>)readFile(relativePath + args[prescription_file], input, practiceData);
+            for(Map.Entry<String, Float> entry : (ArrayList<Map.Entry<String, Float>>)output)
+            {
+              System.out.println(entry.getKey() + ", " + entry.getValue());
+            }
+            break;
 
-        case 4:
-          output = readFile(relativePath + args[prescription_file], input);
-          break;
+          case 4:
+            output = (Float)readFile(relativePath + args[prescription_file], input, null);
+            break;
 
-        case 5:
-          output = readFile(relativePath + args[prescription_file], input);
-          break;
+          case 5:
+            output = (Float)readFile(relativePath + args[prescription_file], input, null);
+            break;
 
-        default:
-          output = -1;
-          break;
+          default:
+            output = new Float(-1);       // Shouldn't get here in normal cases
+            break;
+        }
+        /*for(String file:args)
+        {
+          output = output + readFile(relativePath + file, input);     // Read and parse each file
+          System.out.println(output);
+        }*/
       }
-      /*for(String file:args)
+      else // General querry case
       {
-        output = output + readFile(relativePath + file, input);     // Read and parse each file
-        System.out.println(output);
-      }*/
+        float generalQuerryOutput = 0f;
+        for(String file:args)
+        {
+          generalQuerryOutput = generalQuerryOutput + ((Float)readFile(relativePath + file, input, null)).floatValue();     // Read and parse each file
+          output = generalQuerryOutput;
+        }
+      }
       System.out.println("\nAnswer: " + output);
     }
   }
 
+  private static HashMap<String, Practice> getPracticeData(String fileName)
+  {
+    HashMap<String, Practice> practiceData = new HashMap<String, Practice>();
+    try
+    {
+      BufferedReader brFile = new BufferedReader(new FileReader(fileName));
+      String line = "";
+      String[] rowItems = {};
+      while((line = brFile.readLine()) != null)
+      {
+        rowItems = line.split(",");
+        practiceData.put(rowItems[Columns.PRACTICE_CODE].trim(), new Practice(rowItems[Columns.PRACTICE_CODE].trim(), rowItems[Columns.ADDRESS_POSTCODE].trim(), 0f));
+      }
+    }
+    catch(FileNotFoundException e)
+    {
+      System.err.println("Caught FileNotFoundException when trying to read the input file: " + e.getMessage());
+    }
+    catch(IOException e)
+    {
+      System.err.println("Caught IOException when trying to read the input file: " + e.getMessage());
+    }
+    return practiceData;
+  }
+
+
   /** Method to read and process a file */
   // TODO: Maybe add a cache mechanism for the 20 most recent querries
-  private static float readFile(String fileName, String input)
+  private static Object readFile(String fileName, String input, HashMap<String, Practice> practiceData)
   {
-    float output = 0;
+    float output = 0f;
     try
     {
       BufferedReader brFile = new BufferedReader(new FileReader(fileName));
@@ -83,7 +127,7 @@ public class Run
       boolean headerRead = false;
       int numItems = 0;
       int counter = 0;
-      float actualCost = 0;
+      float actualCost = 0f;
       while((line = brFile.readLine()) != null)
       {
         if(headerRead == false)
@@ -117,6 +161,14 @@ public class Run
                 break;
 
               case 3:
+                querry = rowItems[Columns.PRACTICE].trim();
+                Practice practice = practiceData.get(querry);
+                if(practice != null)
+                {
+                  //System.out.println(practice + "," + practiceData.size() + "," + querry);
+                  practice.setPracticeActualCost(practice.getPracticeActualCost() + Float.parseFloat(rowItems[Columns.ACT_COST]));
+                  practiceData.put(querry, practice);
+                }
                 break;
 
               case 4:
@@ -140,15 +192,64 @@ public class Run
           }
         }
       }
-      switch(Integer.parseInt(input))
+      if(input.matches("[0-9]+"))   // Questions
       {
-        case 2:
-          output = actualCost/counter;
-          break;
-        default:
-          output = -1;
-          break;
+        switch(Integer.parseInt(input))
+        {
+          // Do nothing
+          case 1:
+            return new Float(output);
+
+          // Need to calculate average for question 2
+          case 2:
+            output = actualCost/counter;
+            return new Float(output);
+
+          case 3:
+            HashMap<String, Float> postcodeData = new HashMap<String, Float>();
+            for(Map.Entry<String, Practice> entry : practiceData.entrySet())
+            {
+              String postcode = entry.getValue().getPracticePostCode();
+              float postcodeActualCost = entry.getValue().getPracticeActualCost();
+              if(postcodeData.get(postcode) == null)    // New entry
+              {
+                postcodeData.put(postcode, new Float(postcodeActualCost));
+              }
+              else      // Update entry
+              {
+                postcodeData.put(postcode, new Float(postcodeData.get(postcode) + postcodeActualCost));
+              }
+              //System.out.println(postcodeData.get(postcode));
+            }
+            //Find 5 postcodes with the highest actual cost
+            ArrayList<Map.Entry<String, Float>> postcodeMaxActualCost = new ArrayList<Map.Entry<String, Float>>();
+            for(int i = 0; i < 5; i++)     // Iterate five times to find 5 max values
+            {
+              Map.Entry<String, Float> maxEntry = null;
+              for(Map.Entry<String, Float> entry : postcodeData.entrySet())
+              {
+                if(maxEntry == null || (entry.getValue().compareTo(maxEntry.getValue()) > 0))
+                {
+                  maxEntry = entry;
+                }
+              }
+              postcodeMaxActualCost.add(maxEntry);    // Add max entry to list
+              postcodeData.remove(maxEntry.getKey()); // Remove max entry from hashmap to be able to get a new maximum in the next iteration
+            }
+            return postcodeMaxActualCost;
+
+          case 4:
+            return new Float(output);
+
+          case 5:
+            return new Float(output);
+
+          default:
+            output = -1;
+            return new Float(output);
+        }
       }
+      else return new Float(output);  // General querry case
     }
     catch(FileNotFoundException e)
     {
@@ -158,7 +259,7 @@ public class Run
     {
       System.err.println("Caught IOException when trying to read the input file: " + e.getMessage());
     }
-    return output;
+    return null;    // Shouldn't get here in normal cases
   }
 
   /* Method to display files names (arguments) passed to the program */
