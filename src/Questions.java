@@ -27,7 +27,7 @@ public class Questions
     questionsList.add(question);
     question = "What was the average price per prescription of Flucloxacillin (excluding Co-Fluampicil)?";
     questionsList.add(question);
-    question = "How much did this vary from the national mean?";
+    question = "How much did the average price per prescription of Flucloxacillin (excluding Co-Fluampicil) vary from the national mean?";
     questionsList.add(question);
     // TODO: Look for other types of possible questions and add them to this list (Add atleast 5-7 more questions)
     

@@ -40,27 +40,34 @@ public class Run
         {
           case 1:
             output = (Float)readFile(relativePath + args[practices_file], input, null);
+            System.out.println("\nAnswer: There are " + Math.round(((Float)output).floatValue()) + " practices in London.");
             break;
 
           case 2:
             output = (Float)readFile(relativePath + args[prescription_file], input, null);
+            System.out.println("\nAnswer: The average cost of all Peppermint Oil prescriptions was " + ((Float)output).floatValue() + ".");
             break;
 
           case 3:
             HashMap<String, Practice> practiceData = getPracticeData(relativePath + args[practices_file]);   // Store practice data to be able to access postcode references when parsing and analysing the prescription file
             output = (ArrayList<Map.Entry<String, Float>>)readFile(relativePath + args[prescription_file], input, practiceData);
+            System.out.println("\nAnswer: The 5 postcodes with the highest actual spend (along with each of their total spends) are as follows (listed in descending order):");
+            int i = 1; 
             for(Map.Entry<String, Float> entry : (ArrayList<Map.Entry<String, Float>>)output)
             {
-              System.out.println(entry.getKey() + ", " + entry.getValue());
+              System.out.println(i + ". " + entry.getKey() + ", " + entry.getValue());
+              i++;
             }
             break;
 
           case 4:
             output = (Float)readFile(relativePath + args[prescription_file], input, null);
+            System.out.println("\nAnswer: The average price per prescription of Flucloxacillin (excluding Co-Fluampicil) was " + ((Float)output).floatValue() + ".");
             break;
 
           case 5:
             output = (Float)readFile(relativePath + args[prescription_file], input, null);
+            System.out.println("\nAnswer: The average price per prescription of Flucloxacillin (excluding Co-Fluampicil) varied from the national mean by " + ((Float)output).floatValue() + ".");
             break;
 
           default:
@@ -82,7 +89,6 @@ public class Run
           output = generalQuerryOutput;
         }
       }
-      System.out.println("\nAnswer: " + output);
     }
   }
 
