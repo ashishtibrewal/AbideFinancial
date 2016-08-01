@@ -8,5 +8,6 @@ Classes
 
 Ideas
 -----
-- Maybe add a cache mechanism/functionality (For last 10 questions asked)
-- Think of what data structure to use
+- Add a cache mechanism/functionality (For last 10 questions asked)
+- Clean up code (Maybe check if any design patterns can be used)
+- Add unit testing (Use a separate class and test all important methods)
