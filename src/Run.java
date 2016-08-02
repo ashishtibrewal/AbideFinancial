@@ -82,12 +82,13 @@ public class Run
       }
       else // General querry case
       {
-        float generalQuerryOutput = 0f;
+        int generalQuerryOutput = 0;
         for(String file:args)
         {
-          generalQuerryOutput = generalQuerryOutput + ((Float)readFile(relativePath + file, input, null)).floatValue();     // Read and parse each file
-          output = generalQuerryOutput;
+          generalQuerryOutput = generalQuerryOutput + ((Integer)readFile(relativePath + file, input, null)).intValue();     // Read and parse each file
+          output = (Integer)generalQuerryOutput;
         }
+        System.out.println("\nAnswer: Found " + output + " occurences of \"" + input + "\" in the data files.");
       }
     }
   }
@@ -255,7 +256,7 @@ public class Run
             return new Float(output);
         }
       }
-      else return new Float(output);  // General querry case
+      else return new Integer((int)output);  // General querry case
     }
     catch(FileNotFoundException e)
     {
