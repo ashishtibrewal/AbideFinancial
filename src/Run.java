@@ -11,27 +11,26 @@ import java.util.*;
 public class Run
 {
   /** Main method */
-  @SuppressWarnings("unchecked")    // Suppress unchecked type cast warnings
+  //@SuppressWarnings("unchecked")    // Suppress unchecked type cast warnings
   public static void main(String[] args)
   {
     System.out.println("\nProgram started.");
-    List<List<String[]>> nhsData = new ArrayList<List<String[]>>(); // List of list of String array to store data parsed from a file - Cannot have arrays with generic types hence using the Java Collection Frameworki - Each internal list represents a file and each string array represents a line/row in a file 
+    //List<List<String[]>> nhsData = new ArrayList<List<String[]>>(); // List of list of String array to store data parsed from a file - Cannot have arrays with generic types hence using the Java Collection Framework - Each internal list represents a file and each string array represents a line/row in a file 
     String relativePath = "../";
     displayFiles(args, relativePath);   // Display files
     Questions.initialise();             // Initialise questions
-    String input;
-    Object output;
-    int prescription_file = 0;
-    int practices_file = 1;
-    while(true)
+    String input, output;
+    int prescription_file = 0;          // Argument number for prescription file
+    int practices_file = 1;             // Argument number for practices fle
+    while(true)       // Run until user asks to quit
     {
-      output = 0;
+      output = "0";                     // Initialise output to 0
       displayQuestions();               // Display questions
       input = readInput();              // Read user input
       if(input.equals("Quit") || input.equals("quit") || input.equals("q"))
       {
         System.out.println("\nQuitting... Goodbye.\n");
-        System.exit(0);
+        System.exit(0);     // Exit program without any errors
       }
       // TODO: Only run this if it doesn't exist in the cache, if it does read the value from the cache
       else if(input.matches("[0-9]+"))
@@ -39,55 +38,44 @@ public class Run
         switch(Integer.parseInt(input))
         {
           case 1:
-            output = (Float)readFile(relativePath + args[practices_file], input, null);
-            System.out.println("\nAnswer: There are " + Math.round(((Float)output).floatValue()) + " practices in London.");
+            output = readFile(relativePath + args[practices_file], input, null);
+            System.out.println("\nAnswer: There are " + output + " practices in London.");
             break;
 
           case 2:
-            output = (Float)readFile(relativePath + args[prescription_file], input, null);
-            System.out.println("\nAnswer: The average cost of all Peppermint Oil prescriptions was " + ((Float)output).floatValue() + ".");
+            output = readFile(relativePath + args[prescription_file], input, null);
+            System.out.println("\nAnswer: The average cost of all Peppermint Oil prescriptions was " + output + ".");
             break;
 
           case 3:
             HashMap<String, Practice> practiceData = getPracticeData(relativePath + args[practices_file]);   // Store practice data to be able to access postcode references when parsing and analysing the prescription file
-            output = (ArrayList<Map.Entry<String, Float>>)readFile(relativePath + args[prescription_file], input, practiceData);
-            System.out.println("\nAnswer: The 5 postcodes with the highest actual spend (along with each of their total spends) are as follows (listed in descending order):");
-            int i = 1; 
-            for(Map.Entry<String, Float> entry : (ArrayList<Map.Entry<String, Float>>)output)
-            {
-              System.out.println(i + ". " + entry.getKey() + ", " + entry.getValue());
-              i++;
-            }
+            output = readFile(relativePath + args[prescription_file], input, practiceData);
+            System.out.println("\nAnswer: The 5 postcodes with the highest actual spend (along with each of their total spends) are as follows (listed in descending order):\n" + output);
             break;
 
           case 4:
-            output = (Float)readFile(relativePath + args[prescription_file], input, null);
-            System.out.println("\nAnswer: The average price per prescription of Flucloxacillin (excluding Co-Fluampicil) was " + ((Float)output).floatValue() + ".");
+            output = readFile(relativePath + args[prescription_file], input, null);
+            System.out.println("\nAnswer: The average price per prescription of Flucloxacillin (excluding Co-Fluampicil) was " + output + ".");
             break;
 
           case 5:
-            output = (Float)readFile(relativePath + args[prescription_file], input, null);
-            System.out.println("\nAnswer: The average price per prescription of Flucloxacillin (excluding Co-Fluampicil) varied from the national mean by " + ((Float)output).floatValue() + ".");
+            output = readFile(relativePath + args[prescription_file], input, null);
+            System.out.println("\nAnswer: The average price per prescription of Flucloxacillin (excluding Co-Fluampicil) varied from the national mean by " + output + ".");
             break;
 
           default:
-            output = new Float(-1);       // Shouldn't get here in normal cases
+            output = "-1";       // Shouldn't get here in normal cases
             break;
         }
-        /*for(String file:args)
-        {
-          output = output + readFile(relativePath + file, input);     // Read and parse each file
-          System.out.println(output);
-        }*/
       }
-      else // General querry case
+      else      // General querry case
       {
         int generalQuerryOutput = 0;
         for(String file:args)
         {
-          generalQuerryOutput = generalQuerryOutput + ((Integer)readFile(relativePath + file, input, null)).intValue();     // Read and parse each file
-          output = (Integer)generalQuerryOutput;
+          generalQuerryOutput = generalQuerryOutput + Integer.parseInt(readFile(relativePath + file, input, null));     // Read and parse each file
         }
+        output = String.valueOf(generalQuerryOutput);
         System.out.println("\nAnswer: Found " + output + " occurences of \"" + input + "\" in the data files.");
       }
     }
@@ -121,9 +109,9 @@ public class Run
 
   /** Method to read and process a file */
   // TODO: Maybe add a cache mechanism for the 20 most recent querries
-  private static Object readFile(String fileName, String input, HashMap<String, Practice> practiceData)
+  private static String readFile(String fileName, String input, HashMap<String, Practice> practiceData)
   {
-    float output = 0f;
+    String output = "";
     try
     {
       BufferedReader brFile = new BufferedReader(new FileReader(fileName));
@@ -137,6 +125,7 @@ public class Run
       float actualCost = 0f;
       while((line = brFile.readLine()) != null)
       {
+        // TODO: Check to make sure that a row is not being missed if a file doesn't contain a header row
         if(headerRead == false)
         {
           columnHeaderItems = line.split(",");
@@ -154,7 +143,7 @@ public class Run
                 querry = "London";
                 for(int i = 0; i < numItems; i++)
                 {
-                  if(rowItems[i].toLowerCase().contains(querry.toLowerCase())) output++;
+                  if(rowItems[i].toLowerCase().contains(querry.toLowerCase())) counter++;
                 }
                 break;
 
@@ -185,7 +174,7 @@ public class Run
                 break;
 
               default:
-                output = -1;
+                counter = -1;
                 break;
             }
           }
@@ -194,7 +183,7 @@ public class Run
             querry = input;
             for(int i = 0; i < numItems; i++)
             {
-              if(rowItems[i].toLowerCase().contains(querry.toLowerCase())) output++;
+              if(rowItems[i].toLowerCase().contains(querry.toLowerCase())) counter++;
             }
           }
         }
@@ -203,14 +192,15 @@ public class Run
       {
         switch(Integer.parseInt(input))
         {
-          // Do nothing
+          // Do nothing extra
           case 1:
-            return new Float(output);
+            output = String.valueOf(Math.round(counter));
+            break;
 
           // Need to calculate average for question 2
           case 2:
-            output = actualCost/counter;
-            return new Float(output);
+            output = String.valueOf(actualCost/counter);
+            break;
 
           case 3:
             HashMap<String, Float> postcodeData = new HashMap<String, Float>();
@@ -226,11 +216,12 @@ public class Run
               {
                 postcodeData.put(postcode, new Float(postcodeData.get(postcode) + postcodeActualCost));
               }
-              //System.out.println(postcodeData.get(postcode));
             }
             //Find 5 postcodes with the highest actual cost
-            ArrayList<Map.Entry<String, Float>> postcodeMaxActualCost = new ArrayList<Map.Entry<String, Float>>();
-            for(int i = 0; i < 5; i++)     // Iterate five times to find 5 max values
+            int numToFind = 5;
+            String postcodeMaxActualCost = "";
+            //ArrayList<Map.Entry<String, Float>> postcodeMaxActualCost = new ArrayList<Map.Entry<String, Float>>();
+            for(int i = 0; i < numToFind; i++)     // Iterate five times to find 5 max values
             {
               Map.Entry<String, Float> maxEntry = null;
               for(Map.Entry<String, Float> entry : postcodeData.entrySet())
@@ -240,23 +231,33 @@ public class Run
                   maxEntry = entry;
                 }
               }
-              postcodeMaxActualCost.add(maxEntry);    // Add max entry to list
               postcodeData.remove(maxEntry.getKey()); // Remove max entry from hashmap to be able to get a new maximum in the next iteration
+              postcodeMaxActualCost = postcodeMaxActualCost + (i + 1) + ". " + maxEntry.getKey() + ", " + maxEntry.getValue();  // Add max entry to the list
+              if (i < (numToFind - 1))
+              {
+                postcodeMaxActualCost = postcodeMaxActualCost + "\n";  // Add new line character
+              }
             }
-            return postcodeMaxActualCost;
+            output = postcodeMaxActualCost;
+            break;
 
           case 4:
-            return new Float(output);
+            output = String.valueOf(counter);
+            break;
 
           case 5:
-            return new Float(output);
+            output = String.valueOf(counter);
+            break;
 
           default:
-            output = -1;
-            return new Float(output);
+            output = String.valueOf(counter);
+            break;
         }
       }
-      else return new Integer((int)output);  // General querry case
+      else    // General querry case
+      {
+        output = String.valueOf(Math.round(counter));
+      }
     }
     catch(FileNotFoundException e)
     {
@@ -266,7 +267,7 @@ public class Run
     {
       System.err.println("Caught IOException when trying to read the input file: " + e.getMessage());
     }
-    return null;    // Shouldn't get here in normal cases
+    return output;
   }
 
   /* Method to display files names (arguments) passed to the program */

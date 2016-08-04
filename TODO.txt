@@ -11,3 +11,4 @@ Ideas
 - Add a cache mechanism/functionality (For last 10 questions asked)
 - Clean up code (Maybe check if any design patterns can be used)
 - Add unit testing (Use a separate class and test all important methods)
+- Change output type to String instead of using the Object type (To make the code cleaner)
