@@ -22,6 +22,7 @@ public class Run
     String input, output;
     int prescription_file = 0;          // Argument number for prescription file
     int practices_file = 1;             // Argument number for practices fle
+    FileParser parser = new FileParser(); // Instantiate a new file parser object
     while(true)       // Run until user asks to quit
     {
       output = "0";                     // Initialise output to 0
@@ -38,28 +39,28 @@ public class Run
         switch(Integer.parseInt(input))
         {
           case 1:
-            output = readFile(relativePath + args[practices_file], input, null);
+            output = parser.parseFile(relativePath + args[practices_file], input, null);
             System.out.println("\nAnswer: There are " + output + " practices in London.");
             break;
 
           case 2:
-            output = readFile(relativePath + args[prescription_file], input, null);
+            output = parser.parseFile(relativePath + args[prescription_file], input, null);
             System.out.println("\nAnswer: The average cost of all Peppermint Oil prescriptions was " + output + ".");
             break;
 
           case 3:
-            HashMap<String, Practice> practiceData = getPracticeData(relativePath + args[practices_file]);   // Store practice data to be able to access postcode references when parsing and analysing the prescription file
-            output = readFile(relativePath + args[prescription_file], input, practiceData);
+            HashMap<String, Practice> practiceData = parser.getPracticeData(relativePath + args[practices_file]);   // Store practice data to be able to access postcode references when parsing and analysing the prescription file
+            output = parser.parseFile(relativePath + args[prescription_file], input, practiceData);
             System.out.println("\nAnswer: The 5 postcodes with the highest actual spend (along with each of their total spends) are as follows (listed in descending order):\n" + output);
             break;
 
           case 4:
-            output = readFile(relativePath + args[prescription_file], input, null);
+            output = parser.parseFile(relativePath + args[prescription_file], input, null);
             System.out.println("\nAnswer: The average price per prescription of Flucloxacillin (excluding Co-Fluampicil) was " + output + ".");
             break;
 
           case 5:
-            output = readFile(relativePath + args[prescription_file], input, null);
+            output = parser.parseFile(relativePath + args[prescription_file], input, null);
             System.out.println("\nAnswer: The average price per prescription of Flucloxacillin (excluding Co-Fluampicil) varied from the national mean by " + output + ".");
             break;
 
@@ -73,201 +74,12 @@ public class Run
         int generalQuerryOutput = 0;
         for(String file:args)
         {
-          generalQuerryOutput = generalQuerryOutput + Integer.parseInt(readFile(relativePath + file, input, null));     // Read and parse each file
+          generalQuerryOutput = generalQuerryOutput + Integer.parseInt(parser.parseFile(relativePath + file, input, null));     // Read and parse each file
         }
         output = String.valueOf(generalQuerryOutput);
         System.out.println("\nAnswer: Found " + output + " occurences of \"" + input + "\" in the data files.");
       }
     }
-  }
-
-  private static HashMap<String, Practice> getPracticeData(String fileName)
-  {
-    HashMap<String, Practice> practiceData = new HashMap<String, Practice>();
-    try
-    {
-      BufferedReader brFile = new BufferedReader(new FileReader(fileName));
-      String line = "";
-      String[] rowItems = {};
-      while((line = brFile.readLine()) != null)
-      {
-        rowItems = line.split(",");
-        practiceData.put(rowItems[Columns.PRACTICE_CODE].trim(), new Practice(rowItems[Columns.PRACTICE_CODE].trim(), rowItems[Columns.ADDRESS_POSTCODE].trim(), 0f));
-      }
-    }
-    catch(FileNotFoundException e)
-    {
-      System.err.println("Caught FileNotFoundException when trying to read the input file: " + e.getMessage());
-    }
-    catch(IOException e)
-    {
-      System.err.println("Caught IOException when trying to read the input file: " + e.getMessage());
-    }
-    return practiceData;
-  }
-
-
-  /** Method to read and process a file */
-  // TODO: Maybe add a cache mechanism for the 20 most recent querries
-  private static String readFile(String fileName, String input, HashMap<String, Practice> practiceData)
-  {
-    String output = "";
-    try
-    {
-      BufferedReader brFile = new BufferedReader(new FileReader(fileName));
-      String line = "";
-      String[] columnHeaderItems = {};
-      String[] rowItems = {};
-      String querry = "";
-      boolean headerRead = false;
-      int numItems = 0;
-      int counter = 0;
-      float actualCost = 0f;
-      while((line = brFile.readLine()) != null)
-      {
-        // TODO: Check to make sure that a row is not being missed if a file doesn't contain a header row
-        if(headerRead == false)
-        {
-          columnHeaderItems = line.split(",");
-          numItems = columnHeaderItems.length;
-          headerRead = true;
-        }
-        else
-        {
-          rowItems = line.split(",");
-          if(input.matches("[0-9]+"))   // Questions
-          {
-            switch(Integer.parseInt(input))
-            {
-              case 1:
-                querry = "London";
-                for(int i = 0; i < numItems; i++)
-                {
-                  if(rowItems[i].toLowerCase().contains(querry.toLowerCase())) counter++;
-                }
-                break;
-
-              case 2:
-                querry = "Peppermint Oil";
-                if(rowItems[Columns.BNF_NAME].toLowerCase().contains(querry.toLowerCase()))
-                {
-                  actualCost = actualCost + Float.parseFloat(rowItems[Columns.ACT_COST]);
-                  counter++;
-                }
-                break;
-
-              case 3:
-                querry = rowItems[Columns.PRACTICE].trim();
-                Practice practice = practiceData.get(querry);
-                if(practice != null)
-                {
-                  //System.out.println(practice + "," + practiceData.size() + "," + querry);
-                  practice.setPracticeActualCost(practice.getPracticeActualCost() + Float.parseFloat(rowItems[Columns.ACT_COST]));
-                  practiceData.put(querry, practice);
-                }
-                break;
-
-              case 4:
-                break;
-
-              case 5:
-                break;
-
-              default:
-                counter = -1;
-                break;
-            }
-          }
-          else      // General querry
-          {
-            querry = input;
-            for(int i = 0; i < numItems; i++)
-            {
-              if(rowItems[i].toLowerCase().contains(querry.toLowerCase())) counter++;
-            }
-          }
-        }
-      }
-      if(input.matches("[0-9]+"))   // Questions
-      {
-        switch(Integer.parseInt(input))
-        {
-          // Do nothing extra
-          case 1:
-            output = String.valueOf(Math.round(counter));
-            break;
-
-          // Need to calculate average for question 2
-          case 2:
-            output = String.valueOf(actualCost/counter);
-            break;
-
-          case 3:
-            HashMap<String, Float> postcodeData = new HashMap<String, Float>();
-            for(Map.Entry<String, Practice> entry : practiceData.entrySet())
-            {
-              String postcode = entry.getValue().getPracticePostCode();
-              float postcodeActualCost = entry.getValue().getPracticeActualCost();
-              if(postcodeData.get(postcode) == null)    // New entry
-              {
-                postcodeData.put(postcode, new Float(postcodeActualCost));
-              }
-              else      // Update entry
-              {
-                postcodeData.put(postcode, new Float(postcodeData.get(postcode) + postcodeActualCost));
-              }
-            }
-            //Find 5 postcodes with the highest actual cost
-            int numToFind = 5;
-            String postcodeMaxActualCost = "";
-            //ArrayList<Map.Entry<String, Float>> postcodeMaxActualCost = new ArrayList<Map.Entry<String, Float>>();
-            for(int i = 0; i < numToFind; i++)     // Iterate five times to find 5 max values
-            {
-              Map.Entry<String, Float> maxEntry = null;
-              for(Map.Entry<String, Float> entry : postcodeData.entrySet())
-              {
-                if(maxEntry == null || (entry.getValue().compareTo(maxEntry.getValue()) > 0))
-                {
-                  maxEntry = entry;
-                }
-              }
-              postcodeData.remove(maxEntry.getKey()); // Remove max entry from hashmap to be able to get a new maximum in the next iteration
-              postcodeMaxActualCost = postcodeMaxActualCost + (i + 1) + ". " + maxEntry.getKey() + ", " + maxEntry.getValue();  // Add max entry to the list
-              if (i < (numToFind - 1))
-              {
-                postcodeMaxActualCost = postcodeMaxActualCost + "\n";  // Add new line character
-              }
-            }
-            output = postcodeMaxActualCost;
-            break;
-
-          case 4:
-            output = String.valueOf(counter);
-            break;
-
-          case 5:
-            output = String.valueOf(counter);
-            break;
-
-          default:
-            output = String.valueOf(counter);
-            break;
-        }
-      }
-      else    // General querry case
-      {
-        output = String.valueOf(Math.round(counter));
-      }
-    }
-    catch(FileNotFoundException e)
-    {
-      System.err.println("Caught FileNotFoundException when trying to read the input file: " + e.getMessage());
-    }
-    catch(IOException e)
-    {
-      System.err.println("Caught IOException when trying to read the input file: " + e.getMessage());
-    }
-    return output;
   }
 
   /* Method to display files names (arguments) passed to the program */
