@@ -16,18 +16,21 @@ public class Run
   {
     System.out.println("\nProgram started.");
     //List<List<String[]>> nhsData = new ArrayList<List<String[]>>(); // List of list of String array to store data parsed from a file - Cannot have arrays with generic types hence using the Java Collection Framework - Each internal list represents a file and each string array represents a line/row in a file 
-    String relativePath = "../";
-    displayFiles(args, relativePath);   // Display files
-    Questions.initialise();             // Initialise questions
-    String input, output;
     int prescription_file = 0;          // Argument number for prescription file
-    int practices_file = 1;             // Argument number for practices fle
+    int practices_file = 1;             // Argument number for practices file
+    int regions_file = 2;               // Argument number for regions file
+    String relativePath = "../";        // Relative path for files
+    Utility.displayFiles(args);         // Display files
+    Utility.initialiseQuestions();      // Initialise questions
+    Utility.initialiseRegions(relativePath + args[regions_file]);  // Initialise regions
+    Utility.initialiseCities();         // Initialise cities
+    String input, output;
     FileParser parser = new FileParser(); // Instantiate a new file parser object
     while(true)       // Run until user asks to quit
     {
       output = "0";                     // Initialise output to 0
-      displayQuestions();               // Display questions
-      input = readInput();              // Read user input
+      Utility.displayQuestions();       // Display questions
+      input = UserInputParser.readInput();              // Read user input
       if(input.equals("Quit") || input.equals("quit") || input.equals("q"))
       {
         System.out.println("\nQuitting... Goodbye.\n");
@@ -78,82 +81,6 @@ public class Run
         }
         output = String.valueOf(generalQuerryOutput);
         System.out.println("\nAnswer: Found " + output + " occurences of \"" + input + "\" in the data files.");
-      }
-    }
-  }
-
-  /* Method to display files names (arguments) passed to the program */
-  private static void displayFiles(String[] args, String relativePath)
-  {
-    int fileNo = 1;
-    System.out.println("\n-------- Files --------");
-    for(String file:args)
-    {
-      System.out.println(fileNo + ". " + file);   // Display all arguments/files passed
-      fileNo++;
-    }
-    System.out.println("-----------------------");
-  }
-
-  /* Method to display questions supported by the program */
-  private static void displayQuestions()
-  {
-    int questionNo = 1;
-    System.out.println("\n------ Questions ------");
-    for(String s:Questions.questionsList)
-    {
-      System.out.println(questionNo + ". " + s);    // Dispaly all questions
-      questionNo++;
-    }
-    System.out.println("-----------------------\n");
-  }
-
-  /* Method to read and parse user input */
-  private static String readInput()
-  {
-    BufferedReader brInput = new BufferedReader(new InputStreamReader(System.in));
-    String input = "";
-    System.out.println("Please choose from one of the following options:");
-    System.out.println("a. Type question number and hit the Enter key to retrieve an answer for the question.");
-    System.out.println("b. Type a word (or a phrase) to search for in the data files.");
-    System.out.println("c. Type \"Quit\" or \"quit\" or \"q\" and hit the Enter key to quit the program.\n");
-    while(true)
-    {
-      System.out.print("Input: ");
-      try
-      {
-        input = brInput.readLine();
-        if(input.equals("Quit") || input.equals("quit") || input.equals("q")) return input;
-        else
-        {
-          if(input.matches("[0-9]+"))
-          {
-            if((Integer.parseInt(input) > 0) && (Integer.parseInt(input) <= Questions.questionsList.size()))
-            {
-              System.out.println("Question " + input + ": " + Questions.questionsList.get(Integer.parseInt(input) - 1));
-              System.out.print("Searching...");
-              // TODO For certain questions, a region would be required
-              return input;
-            }
-            else
-            {
-              System.out.println("Incorrect input value (question number). Please enter a value within range (1 - " + Questions.questionsList.size() + ").");
-            }
-          }
-          else
-          {
-            System.out.println("Searching for \"" + input + "\"...");
-            return input;
-          }
-        }
-      }
-      catch(IOException e)
-      {
-        System.err.println("Caught IOException when trying to read the user input: " + e.getMessage());
-      }
-      catch(NumberFormatException e)
-      {
-        System.err.println("Caught NumberFormatException when trying to read the user input: " + e.getMessage() + ". Incorrect input value (question number). Please enter a value within range (1 - " + Questions.questionsList.size() + ").");
       }
     }
   }

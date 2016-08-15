@@ -92,7 +92,7 @@ public class FileParser
                   //System.out.print("HM object ref: " + p + ", HM size: " + practiceData.size() + ", Querry: " + querry + ", P object ref: " + practiceData.get(querry) + ", Act cost (before): " + p.getPracticeActualCost() + ", Actual cost (after): ");
                   p.setPracticeActualCost(p.getPracticeActualCost() + Float.parseFloat(rowItems[Columns.ACT_COST]));
                   //System.out.println(p.getPracticeActualCost());
-                  //practiceData.put(querry, practice);       // Note we don't need to "put" the updated object back into the HashMap since 'p' contains a reference to the Practice object contained in the HashMap. Modifying (contents in) 'p' modifies the (contents in) the original Practice object contained within the hashamp.
+                  //practiceData.put(querry, practice);       // Note we don't need to "put" the updated object back into the HashMap since 'p' contains a reference to the Practice object contained in the HashMap. Modifying (contents in) 'p' modifies the (contents in) the original Practice object contained within the hashmap.
                 }
                 break;
 
@@ -199,4 +199,44 @@ public class FileParser
     return output;
   }
 
+  /* Method to parse regions file */
+  public static ArrayList<String> readRegionsFile(String fileName)
+  {
+    ArrayList<String> regions = new ArrayList<String>();
+    try
+    {
+      BufferedReader brFile = new BufferedReader(new FileReader(fileName));
+      String line = "";
+      String updatedLine = "";
+      String[] rowItems = {};
+      LinkedHashSet<String> regionsHashSet = new LinkedHashSet<String>(); // Instantiate a new linkedhashset object with default initial capacity and load factor
+      while((line = brFile.readLine()) != null)
+      {
+        updatedLine = Utility.parseLine(line);        // Parse line using custom parser
+        rowItems = updatedLine.split(",");            // Split on commas
+        if(rowItems.length > Columns.REGION_REGION)   // Check to make sure that the element (i.e. 26th column entry) exists for the current row in the regions data file
+        {
+          if(!rowItems[Columns.REGION_REGION].isEmpty())  // Check to make sure that the cell/element isn't empty
+          {
+            regionsHashSet.add(rowItems[Columns.REGION_REGION].trim());
+          }
+        }
+      }
+      Iterator<String> itr = regionsHashSet.iterator();
+      while(itr.hasNext())
+      {
+        regions.add(itr.next());
+      }
+      regions.remove("Region");   // Remove the "Region" element read on the first row of the regions data csv file
+    }
+    catch(FileNotFoundException e)
+    {
+      System.err.println("Caught FileNotFoundException when trying to read the input file: " + e.getMessage());
+    }
+    catch(IOException e)
+    {
+      System.err.println("Caught IOException when trying to read the input file: " + e.getMessage());
+    }
+    return regions;
+  }
 }

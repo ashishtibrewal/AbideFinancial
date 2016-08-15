@@ -1,14 +1,11 @@
 #!/bin/bash
-
-#############################################################################
 # File: compile.sh
 # Author: Ashish Tibrewal
-# Date: 12.10.2015
-# Description: Script to compile all the source files and run the simulator
+# Date: 21.07.2016
+# Description: Script to compile all the source files and run the program
 #############################################################################
 
-# TODO: Update the way the check for internet connection is being made - Make check cleaner
-# TODO: Add postcode file check (link: https://www.doogal.co.uk/UKPostcodesCSV.ashx?country=England)
+# TODO: Make internet check cleaner
 # TODO: Add check for java compiler and java runtime (java_home)
 
 SRC=src       # Source directory
@@ -19,7 +16,7 @@ MEM=-Xmx2048m # Flag to specify extra memory
 DUMP=-XX:+HeapDumpOnOutOfMemoryError # Flag to dump heap
 echo "Current working directory: `pwd`"
 echo "Checking arguments passed..."
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 3 ]; then
   echo "Illegal number of arguments. Check arguments and re-run script." >&2    # Write to standard error stream
   exit 1
 else
@@ -57,6 +54,18 @@ else
     exit 1
   fi
 fi
+if [ -e "$3" ]; then
+  echo "$3 exists."
+else
+  echo "$3 doesn't exist. Downloading file to $3..."
+  curl -o /dev/null -s http://www.google.com
+  if [ $? -eq 0 ]; then
+    curl -o "$3" https://www.doogal.co.uk/UKPostcodesCSV.ashx?country=England
+  else
+    echo "Failed to download $3. Check internet connection and re-run script." >&2    # Write to the standard error stream
+    exit 1
+  fi
+fi
 echo "Checking if $BIN directory exists..."
 if [ -d "$BIN" ]; then
   echo "$BIN directory exists."
@@ -75,7 +84,7 @@ if [ -d "$SRC" ]; then
     echo "Moving to $BIN directory..."
     cd ../$BIN
     echo "Initialising JVM to run the program..."
-    java $MEM $DUMP Run "$1" "$2"
+    java $MEM $DUMP Run "$1" "$2" "$3"
   else
     echo "Compilation failed." >&2    # Write to standard error stream
     exit 1

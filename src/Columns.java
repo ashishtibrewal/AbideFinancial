@@ -26,4 +26,8 @@ public class Columns
   public static final short ADDRESS_CITY = 5;
   public static final short ADDRESS_COUNTY = 6;
   public static final short ADDRESS_POSTCODE = 7;
+
+  // Declare all column constants (Region file)
+  public static final short REGION_POSTCODE = 0;
+  public static final short REGION_REGION = 25;
 }
