@@ -36,7 +36,6 @@ public class FileParser
   }
 
   /** Method to read and process a file */
-  // TODO: Maybe add a cache mechanism for the 20 most recent querries
   public String parseFile(String fileName, String input, HashMap<String, Practice> practiceData)
   {
     String output = "";
@@ -200,7 +199,7 @@ public class FileParser
   }
 
   /* Method to parse regions file */
-  public static ArrayList<String> readRegionsFile(String fileName)
+  public ArrayList<String> readRegionsFile(String fileName)
   {
     ArrayList<String> regions = new ArrayList<String>();
     try

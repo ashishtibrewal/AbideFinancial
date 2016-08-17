@@ -17,7 +17,7 @@ public class UserInputParser
     System.out.println("Please choose from one of the following options:");
     System.out.println("a. Type question number and hit the Enter key to retrieve an answer for the question.");
     System.out.println("b. Type a word (or a phrase) to search for in the data files.");
-    System.out.println("c. Type \"Quit\" or \"quit\" or \"q\" and hit the Enter key to quit the program.\n");
+    System.out.println("c. Type \"Quit\" or \"quit\" or \"q\" or \"Q\" and hit the Enter key to quit the program.\n");
     while(true)
     {
       System.out.print("Input: ");

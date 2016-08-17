@@ -28,12 +28,12 @@ public final class Utility
   }
     
   /* Method to initialise regions */
-  public static void initialiseRegions(String fileName)
+  public static void initialiseRegions(String fileName, FileParser parser)
   {
     // Regions
     regionsList = new ArrayList<String>();
     System.out.print("\nParsing " + fileName + " to extract postcode and region data. This may take a few seconds, please wait...");
-    regionsList = FileParser.readRegionsFile(fileName);
+    regionsList = parser.readRegionsFile(fileName);
     System.out.println();
     //System.out.println(regionsList);
   }
