@@ -1,4 +1,4 @@
-/* File: Run.java
+/* File: FileParser.java
  * Author: Ashish Tibrewal
  * Date created: 20.07.2016
  * Date modified: 20.07.2016
@@ -43,7 +43,6 @@ public class FileParser
     {
       BufferedReader brFile = new BufferedReader(new FileReader(fileName));
       String line = "";
-      String[] columnHeaderItems = {};
       String[] rowItems = {};
       String querry = "";
       boolean headerRead = false;
@@ -52,67 +51,68 @@ public class FileParser
       float actualCost = 0f;
       while((line = brFile.readLine()) != null)
       {
-        // TODO: Check to make sure that a row is not being missed if a file doesn't contain a header row
-        if(headerRead == false)
+        rowItems = line.split(",");
+        if(!headerRead)
         {
-          columnHeaderItems = line.split(",");
-          numItems = columnHeaderItems.length;
+          numItems = rowItems.length;
           headerRead = true;
         }
-        else
+        if(input.matches("[0-9]+"))   // Questions
         {
-          rowItems = line.split(",");
-          if(input.matches("[0-9]+"))   // Questions
+          switch(Integer.parseInt(input))
           {
-            switch(Integer.parseInt(input))
-            {
-              case 1:
-                querry = "London";
-                for(int i = 0; i < numItems; i++)
-                {
-                  if(rowItems[i].toLowerCase().contains(querry.toLowerCase())) counter++;
-                }
-                break;
-
-              case 2:
-                querry = "Peppermint Oil";
-                if(rowItems[Columns.BNF_NAME].toLowerCase().contains(querry.toLowerCase()))
-                {
-                  actualCost = actualCost + Float.parseFloat(rowItems[Columns.ACT_COST]);
+            case 1:
+              querry = "London";
+                if(rowItems[Columns.ADDRESS_CITY].toLowerCase().contains(querry.toLowerCase()))
                   counter++;
-                }
-                break;
+              break;
 
-              case 3:
-                querry = rowItems[Columns.PRACTICE].trim();
-                Practice p = practiceData.get(querry);
-                if(p != null)     // Check to make sure that an entry for the "querry" key exists in the hashmap 'practiceData'
-                {
-                  //System.out.print("HM object ref: " + p + ", HM size: " + practiceData.size() + ", Querry: " + querry + ", P object ref: " + practiceData.get(querry) + ", Act cost (before): " + p.getPracticeActualCost() + ", Actual cost (after): ");
-                  p.setPracticeActualCost(p.getPracticeActualCost() + Float.parseFloat(rowItems[Columns.ACT_COST]));
-                  //System.out.println(p.getPracticeActualCost());
-                  //practiceData.put(querry, practice);       // Note we don't need to "put" the updated object back into the HashMap since 'p' contains a reference to the Practice object contained in the HashMap. Modifying (contents in) 'p' modifies the (contents in) the original Practice object contained within the hashmap.
-                }
-                break;
+            case 2:
+              querry = "Peppermint Oil";
+              if(rowItems[Columns.BNF_NAME].toLowerCase().contains(querry.toLowerCase()))
+              {
+                actualCost = actualCost + Float.parseFloat(rowItems[Columns.ACT_COST]);
+                counter++;
+              }
+              break;
 
-              case 4:
-                break;
+            case 3:
+              querry = rowItems[Columns.PRACTICE].trim();
+              Practice p = practiceData.get(querry);
+              if(p != null)     // Check to make sure that an entry for the "querry" key exists in the hashmap 'practiceData'
+              {
+                //System.out.print("HM object ref: " + p + ", HM size: " + practiceData.size() + ", Querry: " + querry + ", P object ref: " + practiceData.get(querry) + ", Act cost (before): " + p.getPracticeActualCost() + ", Actual cost (after): ");
+                p.setPracticeActualCost(p.getPracticeActualCost() + Float.parseFloat(rowItems[Columns.ACT_COST]));
+                //System.out.println(p.getPracticeActualCost());
+                //practiceData.put(querry, practice);       // Note we don't need to "put" the updated object back into the HashMap since 'p' contains a reference to the Practice object contained in the HashMap. Modifying (contents in) 'p' modifies the (contents in) the original Practice object contained within the hashmap.
+              }
+              break;
 
-              case 5:
-                break;
+            case 4:
+              querry = "Flucloxacillin";
+              String querryNeg = "Co-Fluampicil";
+              //TODO: Need to keep track of multiple regions/locations
+              if(rowItems[Columns.BNF_NAME].toLowerCase().contains(querry.toLowerCase()) && !rowItems[Columns.BNF_NAME].toLowerCase().contains(querryNeg.toLowerCase()))
+              {
+                counter++;
+              }
+              break;
 
-              default:
-                counter = -1;
-                break;
-            }
+            case 5:
+              break;
+
+            default:
+              counter = -1;
+              break;
           }
-          else      // General querry
+        }
+        else      // General querry
+        {
+          querry = input;
+          for(int i = 0; i < numItems; i++)
           {
-            querry = input;
-            for(int i = 0; i < numItems; i++)
-            {
-              if(rowItems[i].toLowerCase().contains(querry.toLowerCase())) counter++;
-            }
+            if(rowItems[i].toLowerCase().contains(querry.toLowerCase()))
+              counter++;
           }
         }
       }

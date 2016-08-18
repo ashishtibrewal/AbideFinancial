@@ -22,7 +22,7 @@ public final class Utility
     questionsList.add("How many practices are in London?");
     questionsList.add("What was the average actual cost of all Peppermint Oil prescriptions?");
     questionsList.add("Which 5 post codes have the highest actual spend, and how much did each spend in total?");
-    questionsList.add("What was the average price per prescription of Flucloxacillin (excluding Co-Fluampicil?");
+    questionsList.add("What was the average price per prescription of Flucloxacillin (excluding Co-Fluampicil)?");
     questionsList.add("How much did the average price per prescription of Flucloxacillin (excluding Co-Fluampicil) vary from the national mean?");
     // TODO: Look for other types of possible questions and add them to this list (Add atleast 5-7 more questions)
   }
