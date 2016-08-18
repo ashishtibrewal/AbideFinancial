@@ -10,7 +10,7 @@ import java.io.*;
 public class UserInputParser
 {
   /* Method to read and parse user input */
-  public static String readInput()
+  public String readInput()
   {
     BufferedReader brInput = new BufferedReader(new InputStreamReader(System.in));
     String input = "";

@@ -24,6 +24,7 @@ public class Run
     //List<List<String[]>> nhsData = new ArrayList<List<String[]>>(); // List of list of String array to store data parsed from a file - Cannot have arrays with generic types hence using the Java Collection Framework - Each internal list represents a file and each string array represents a line/row in a file 
     String input, output;
     FileParser parser = new FileParser(); // Instantiate a new file parser object
+    UserInputParser inputParser = new UserInputParser(); // Instantiate a new user input parser object
     Utility.displayFiles(args);           // Display files
     Utility.initialiseQuestions();        // Initialise questions
     Utility.initialiseRegions(relativePath + args[regions_file], parser);  // Initialise regions
@@ -32,7 +33,7 @@ public class Run
     {
       output = "0";                       // Initialise output to 0
       Utility.displayQuestions();         // Display questions
-      input = UserInputParser.readInput();              // Read user input
+      input = inputParser.readInput();    // Read user input
       if(input.equals("Quit") || input.equals("quit") || input.equals("q") || input.equals("Q"))
       {
         System.out.println("\nQuitting... Goodbye.\n");
@@ -40,7 +41,7 @@ public class Run
       }
       else if(input.matches("[0-9]+"))
       {
-        switch(Integer.parseInt(input))
+        switch(Integer.parseInt(input)) // Switch on input and only parse files if data ins't already present in the cache
         {
           case 1:
             if((output = (String)cache.get(input)) == null)

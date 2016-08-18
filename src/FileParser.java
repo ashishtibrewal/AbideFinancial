@@ -120,14 +120,12 @@ public class FileParser
       {
         switch(Integer.parseInt(input))
         {
-          // Do nothing extra
           case 1:
-            output = String.valueOf(Math.round(counter));
+            output = String.valueOf(Math.round(counter));   // Do nothing extra
             break;
 
-          // Need to calculate average for question 2
           case 2:
-            output = String.valueOf(actualCost/counter);
+            output = String.valueOf(actualCost/counter);    // Need to calculate the average
             break;
 
           case 3:
