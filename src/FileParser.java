@@ -10,8 +10,12 @@ import java.io.*;
 
 public class FileParser
 {
+  public final int regionsRegionIndex = 0;
+  public final int regionsPostCodeIndex = 1;
+  /** Method to obtain a HashMap containing practice code and practice object pairs */
   public HashMap<String, Practice> getPracticeData(String fileName)
   {
+    // HashMap -> String: Practice code, Practice: Practice object
     HashMap<String, Practice> practiceData = new HashMap<String, Practice>();
     try
     {
@@ -197,11 +201,13 @@ public class FileParser
   }
 
   /* Method to parse regions file */
-  public ArrayList<String> readRegionsFile(String fileName)
+  public ArrayList<Object> readRegionsFile(String fileName)
   {
-    ArrayList<String> regions = new ArrayList<String>();
+    ArrayList<Object> returnData = new ArrayList<Object>();   // Create a list that stores data that needs to be returned
     try
     {
+      ArrayList<String> regions = new ArrayList<String>();
+      HashMap<String, String> postCodeRegion = new HashMap<String, String>(); // HashMap -> String: Postcode, String: Region
       BufferedReader brFile = new BufferedReader(new FileReader(fileName));
       String line = "";
       String updatedLine = "";
@@ -211,20 +217,20 @@ public class FileParser
       {
         updatedLine = Utility.parseLine(line);        // Parse line using custom parser
         rowItems = updatedLine.split(",");            // Split on commas
-        if(rowItems.length > Columns.REGION_REGION)   // Check to make sure that the element (i.e. 26th column entry) exists for the current row in the regions data file
+        if(rowItems.length > Columns.REGION_REGION && !rowItems[Columns.REGION_REGION].isEmpty())   // Check to make sure that the element (i.e. 26th column entry) exists for the current row in the regions data file and check to make sure that the cell/element isn't empty
         {
-          if(!rowItems[Columns.REGION_REGION].isEmpty())  // Check to make sure that the cell/element isn't empty
-          {
-            regionsHashSet.add(rowItems[Columns.REGION_REGION].trim());
-          }
+          regionsHashSet.add(rowItems[Columns.REGION_REGION].trim());
+          postCodeRegion.put(rowItems[Columns.REGION_POSTCODE].trim(), rowItems[Columns.REGION_REGION].trim());
         }
       }
       Iterator<String> itr = regionsHashSet.iterator();
       while(itr.hasNext())
       {
-        regions.add(itr.next());
+        regions.add(itr.next());  // Add to list
       }
       regions.remove("Region");   // Remove the "Region" element read on the first row of the regions data csv file
+      returnData.add(regions);          // Add regions list to return list
+      returnData.add(postCodeRegion);   // Add regions-postcode hashmap to list
     }
     catch(FileNotFoundException e)
     {
@@ -234,6 +240,6 @@ public class FileParser
     {
       System.err.println("Caught IOException when trying to read the input file: " + e.getMessage());
     }
-    return regions;
+    return returnData;
   }
 }

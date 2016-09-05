@@ -64,6 +64,7 @@ public class Run
           case 3:
             if((output = (String)cache.get(input)) == null)
             {
+              // HashMap -> String: Practice code, Practice: Practice object
               HashMap<String, Practice> practiceData = parser.getPracticeData(relativePath + args[practices_file]);   // Store practice data to be able to access postcode references when parsing and analysing the prescription file
               output = parser.parseFile(relativePath + args[prescription_file], input, practiceData);
               cache.put(input, output);
@@ -74,7 +75,9 @@ public class Run
           case 4:
             if((output = (String)cache.get(input)) == null)
             {
-              output = parser.parseFile(relativePath + args[prescription_file], input, null);
+              // HashMap -> String: Practice code, Practice: Practice object
+              HashMap<String, Practice> practiceData = parser.getPracticeData(relativePath + args[practices_file]);   // Store practice data to be able to access postcode references when parsing and analysing the prescription file
+              output = parser.parseFile(relativePath + args[prescription_file], input, practiceData);
               cache.put(input, output);
             }
             System.out.println("\nAnswer: The average price per prescription of Flucloxacillin (excluding Co-Fluampicil) was " + output + ".");

@@ -10,6 +10,7 @@ public class Practice
   private String practiceCode;
   private String practicePostcode;
   private float practiceActualCost;
+  private String practiceRegion;
 
   public Practice(String practiceCode, String practicePostcode, float practiceActualCost)
   {
@@ -46,5 +47,10 @@ public class Practice
   public void setPracticeActualCost(float practiceActualCost)
   {
     this.practiceActualCost = practiceActualCost;
+  }
+
+  public void setPracticeRegion(String region)
+  {
+    this.practiceRegion = region;
   }
 }
